@@ -53,6 +53,7 @@
 
                     console.log(resp);
                     localStorage.setItem( 'email', resp.usuario.correo );
+                    location.reload();
                 } )
                 .catch( console.warn );
       
