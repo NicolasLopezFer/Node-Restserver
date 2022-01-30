@@ -1,6 +1,6 @@
 const { response, request } = require("express");
 
-const { Categoria, Producto } = require('../models');
+const { Producto } = require('../models');
 
 const obtenerProductos = async (req, res) => {
     const {limite = 5, desde = 0} = req.query;
@@ -33,10 +33,10 @@ const obtenerProducto = async (req, res) => {
 }
 
 const crearProducto = async (req, res = response) => {
-    const nombre = req.body.nombre.toUpperCase();
-    const { categoriaId, precio } = req.body;
 
-    const productoDB = await Producto.findOne({ nombre });
+    const { estado, usuario, ...body} = req.body;
+
+    const productoDB = await Producto.findOne({ nombre: body.nombre.toUpperCase() });
 
     if( productoDB ){
         return res.status(400).json({
@@ -45,10 +45,9 @@ const crearProducto = async (req, res = response) => {
     }
 
     const data = {
-        nombre,
+        ...body,
+        nombre: body.nombre.toUpperCase(),
         usuario: req.usuario._id,
-        precio,
-        categoria: categoriaId,
     }
 
     const producto = new Producto(data);
@@ -61,9 +60,12 @@ const crearProducto = async (req, res = response) => {
 
 const actualizarProducto = async (req, res = response) => {
     const { id } = req.params;
-    const { estado, usuario, categoria, disponible, ...data } = req.body;
+    const { estado, usuario, ...data } = req.body;
 
-    data.nombre = data.nombre.toUpperCase();
+    if(data.nombre){
+        data.nombre = data.nombre.toUpperCase();
+    }
+
     data.usuario - req.usuario._id;
 
     const producto = await Producto.findByIdAndUpdate(id, data, {new: true});
